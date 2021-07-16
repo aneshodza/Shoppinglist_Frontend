@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { Container } from "react-bootstrap";
-import GroupList from "./GroupList";
-import PleaseLogIn from "./PleaseLogIn";
+import GroupList from "./LoggedInComponents/GroupList";
+import PleaseLogIn from "./LoginAndSignupComponents/PleaseLogIn";
 
 export default function CheckIfUserIsLoggedIn() {
-    const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe') == 'true')
-    const [asWho, setAsWho] = useState(localStorage.getItem('asWho') == 'false')
+    const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe') === 'true')
+    const [asWho, setAsWho] = useState(localStorage.getItem('asWho') === 'false')
 
     useEffect(() => {
         if (rememberMe === null) {
