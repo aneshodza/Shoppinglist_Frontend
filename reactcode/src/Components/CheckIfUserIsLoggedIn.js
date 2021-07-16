@@ -4,17 +4,19 @@ import GroupList from "./GroupList";
 import PleaseLogIn from "./PleaseLogIn";
 
 export default function CheckIfUserIsLoggedIn() {
-    const [isLogged, setIsLogged] = useState(localStorage.getItem('isLogged'))
-    const [asWho, setAsWho] = useState(localStorage.getItem('asWho'))
+    const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe') == 'true')
+    const [asWho, setAsWho] = useState(localStorage.getItem('asWho') == 'false')
 
     useEffect(() => {
-
-        if (isLogged === null) {
-            localStorage.setItem('isLogged', false)
+        if (rememberMe === null) {
+            localStorage.setItem('rememberMe', false)
+            setRememberMe(false)
         }
-    })
+    }, [])
 
     return (
-        isLogged ? <GroupList /> : <PleaseLogIn />
+        <div>
+            { rememberMe ? <GroupList test={rememberMe} /> : <PleaseLogIn /> }
+        </div>
     )
 }
