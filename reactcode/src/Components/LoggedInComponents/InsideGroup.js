@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Container, Row, Col, Card } from "react-bootstrap"
+import { Container, Row, Col, Card, Button } from "react-bootstrap"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function InsideGroup(props) {
@@ -18,17 +18,27 @@ export default function InsideGroup(props) {
     })
 
     useEffect(() => {
+        fetchItems()
+    }, [])
+
+    const fetchItems = () => {
         fetch('http://localhost:8080/groups/' + props.match.params.groupUrl)
             .then(r => r.json())
             .then(r => handleFetch(r))
-    }, [])
+    }
 
     const handleFetch = (obj) => {
         setThisGroup(obj)
         console.log(obj)
     }
 
-    
+    const handleDelete = (id) => {
+        console.log(id)
+        fetch('http://localhost:8080/items/' + id, {
+            method: 'delete'
+        })
+            .then(() => fetchItems())
+    }
 
     return (
         <Container>
@@ -51,9 +61,16 @@ export default function InsideGroup(props) {
             {thisGroup.items.map((item) =>
                 <Card style={{ border: "1px solid black", margin: "10px" }}>
                     <Card.Body eventKey={item.id}>
-                        <Card.Title>{item.itemName}</Card.Title>
-                        <Card.Subtitle>Postet by {thisGroup.members.filter(person => person.id === item.personId).map(person => person.username)}</Card.Subtitle>
-                        <Card.Text>{item.message}</Card.Text>
+                        <Row>
+                            <Col style={{ width: '50%', marginRight: '0px' }}>
+                                <Card.Title>{item.itemName}</Card.Title>
+                                <Card.Subtitle>Postet by {thisGroup.members.filter(person => person.id === item.personId).map(person => person.username)}</Card.Subtitle>
+                                <Card.Text>{item.message}</Card.Text>
+                            </Col>
+                            <Col style={{ textAlign: 'right', marginTop: 'auto', marginBottom: 'auto'}}>
+                                <Button variant='danger' onClick={() => handleDelete(item.id)}>Delete item</Button>
+                            </Col>
+                        </Row>
                     </Card.Body>
                 </Card>
             )}
