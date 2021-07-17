@@ -1,6 +1,5 @@
-export default function InsideGroup(props) {
-    console.log(props)
+export default function InsideGroup() {
     return (
-        <p>group</p>
+        <p></p>
     )
 }
