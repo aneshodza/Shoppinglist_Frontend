@@ -1,22 +1,46 @@
 import { useEffect, useState } from "react";
 import { Redirect } from "react-router";
-import GroupList from "./LoggedInComponents/GroupList";
-import PleaseLogIn from "./LoginAndSignupComponents/PleaseLogIn";
 
 export default function CheckIfUserIsLoggedIn() {
     const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe') === 'true')
-    const [asWho, setAsWho] = useState(localStorage.getItem('asWho') === 'false')
+    const [retVal, setRetVal] = useState({})
+    const [redirect, setRedirect] = useState('')
 
     useEffect(() => {
+
         if (rememberMe === null) {
             localStorage.setItem('rememberMe', false)
             setRememberMe(false)
+        } else if (rememberMe) {
+            let obj = {
+                username: localStorage.getItem('rememberedUsername'),
+                password: localStorage.getItem('rememberedPassword')
+            }
+
+            fetch("http://localhost:8080/people", {
+            method: "post",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+            },
+            body: JSON.stringify(obj)
+        })
+            .then(r => r.json())
+            .then(r => verifyAutoLogin(r))
         }
     }, [])
 
+    const verifyAutoLogin = (retVal) => {
+        setRedirect(<Redirect to={{
+            pathname: "/my-groups",
+            state: {userAccount: retVal}
+        }}/>)
+    }
+
     return (
         <div>
-            { rememberMe ? <Redirect to="/my-groups" /> : <PleaseLogIn /> }
+            { rememberMe ? redirect : <Redirect to="/login" /> }
         </div>
     )
 }
