@@ -3,7 +3,6 @@ import { Redirect } from "react-router";
 
 export default function CheckIfUserIsLoggedIn() {
     const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe') === 'true')
-    const [retVal, setRetVal] = useState({})
     const [redirect, setRedirect] = useState('')
 
     useEffect(() => {

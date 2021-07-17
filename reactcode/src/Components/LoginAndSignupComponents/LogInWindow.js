@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -13,6 +13,10 @@ export default function LogInWindow() {
         fields: '',
         errorMessage: ''
     })
+
+    useEffect(() => {
+        localStorage.setItem('loggedIn', false)
+    }, [])
 
     const handleLogin = () => {
         localStorage.setItem('rememberMe', rememberMe)
@@ -44,7 +48,7 @@ export default function LogInWindow() {
             })
             return 1
         }
-        console.log(rememberMe)
+
         if (rememberMe) {
             localStorage.setItem('rememberedUsername', retVal.username)
             localStorage.setItem('rememberedPassword', retVal.password)
