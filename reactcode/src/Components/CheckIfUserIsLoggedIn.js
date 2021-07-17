@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Redirect } from "react-router";
 import GroupList from "./LoggedInComponents/GroupList";
 import PleaseLogIn from "./LoginAndSignupComponents/PleaseLogIn";
 
@@ -15,7 +16,7 @@ export default function CheckIfUserIsLoggedIn() {
 
     return (
         <div>
-            { rememberMe ? <GroupList test={rememberMe} /> : <PleaseLogIn /> }
+            { rememberMe ? <Redirect to="/my-groups" /> : <PleaseLogIn /> }
         </div>
     )
 }

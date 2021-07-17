@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function PleaseLogIn() {
+
+    localStorage.setItem('loggedIn', false)
+
     return (
         <Container>
             <Row>

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
+import { Redirect } from "react-router-dom";
 
 export default function LogInWindow() {
     const [showPassword, setShowPassword] = useState(false)
     const [rememberMe, setRememberMe] = useState(false)
     const [givenUsername, setGivenUsername] = useState()
     const [givenPassword, setGivenPassword] = useState()
+    const [redirect, setRedirect] = useState()
     const [errorLabel, setErrorLabel] = useState({
         fields: '',
         errorMessage: ''
@@ -40,10 +42,13 @@ export default function LogInWindow() {
                 errorMessage: 'The user has not been found'
             })
         }
+        console.log(rememberMe)
         if (rememberMe) {
             localStorage.setItem('rememberedUsername', givenUsername)
             localStorage.setItem('rememberedPassword', givenPassword)
         }
+        localStorage.setItem('loggedIn', true)
+        setRedirect(<Redirect to="/my-groups"  />)
     }
 
     return (
@@ -62,6 +67,7 @@ export default function LogInWindow() {
             </Form.Group>
             <Button variant="primary" onClick={handleLogin}>Log in</Button>
             <p style={{ color: 'red' }}>{ errorLabel.errorMessage }</p>
+            { redirect }
         </Form>
     )
 }
