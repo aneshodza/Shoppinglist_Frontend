@@ -41,6 +41,7 @@ export default function LogInWindow() {
                 fields: 'red',
                 errorMessage: 'The user has not been found'
             })
+            return 1
         }
         console.log(rememberMe)
         if (rememberMe) {
