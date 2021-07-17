@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function LogInWindow() {
     const [showPassword, setShowPassword] = useState(false)
@@ -45,11 +46,16 @@ export default function LogInWindow() {
         }
         console.log(rememberMe)
         if (rememberMe) {
-            localStorage.setItem('rememberedUsername', givenUsername)
-            localStorage.setItem('rememberedPassword', givenPassword)
+            localStorage.setItem('rememberedUsername', retVal.username)
+            localStorage.setItem('rememberedPassword', retVal.password)
+            localStorage.setItem('rememberedId', retVal.id)
         }
         localStorage.setItem('loggedIn', true)
-        setRedirect(<Redirect to="/my-groups"  />)
+        setRedirect(<Redirect to={{
+            pathname: "/my-groups",
+            state: {userAccount: retVal}
+        }} />)
+        setRedirect('')
     }
 
     return (
@@ -68,6 +74,7 @@ export default function LogInWindow() {
             </Form.Group>
             <Button variant="primary" onClick={handleLogin}>Log in</Button>
             <p style={{ color: 'red' }}>{ errorLabel.errorMessage }</p>
+            <Button variant="primary" onClick={() => setRedirect(<Redirect to="/signup" />)}>I don't have an account</Button>
             { redirect }
         </Form>
     )
