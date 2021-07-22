@@ -68,19 +68,19 @@ export default function SignUpWindow() {
 
     const checkIfWorked = (retVal) => {
 
-        if (retVal.username === 'Username is already in use') {
+        if (retVal.returnMessage === 'Username is already in use') {
             setErrorLabel({
                 fields: 'red',
                 errorMessage: 'The username is already in use'
             })
             return 1
-        } else if (retVal.id === 'Password is not 8 characters long') {
+        } else if (retVal.returnMessage === 'Password is not 8 characters long') {
             setErrorLabel({
                 fields: 'red',
                 errorMessage: 'The password is too short'
             })
             return 1
-        } else if (retVal.id === 'Username cannot be empty') {
+        } else if (retVal.returnMessage === 'Username cannot be empty') {
             setErrorLabel({
                 fields: 'red',
                 errorMessage: 'The username cannot be empty'
