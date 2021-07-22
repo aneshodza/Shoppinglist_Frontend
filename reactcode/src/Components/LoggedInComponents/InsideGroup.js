@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react"
-import { Container, Row, Col, Card, Button } from "react-bootstrap"
+import { Container, Row, Col, Card, Button, Modal, Form } from "react-bootstrap"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function InsideGroup(props) {
+    const [showCreateModal, setShowCreateModal] = useState(true)
+    const [newItem, setNewItem] = useState({
+        itemName: '',
+        message: '',
+        personId: ''
+    })
 
     const [showMembers, setShowMembers] = useState(true)
 
@@ -32,21 +38,33 @@ export default function InsideGroup(props) {
 
     const handleFetch = (obj) => {
         setThisGroup(obj)
-        console.log(obj)
     }
 
     const handleDelete = (id) => {
-        console.log(id)
         fetch('http://localhost:8080/items/' + id, {
             method: 'delete'
         })
             .then(() => fetchItems())
     }
 
+    const handleCreate = () => {
+        fetch('http://localhost:8080/items/' + thisGroup.id, {
+            method: 'put',
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+            },
+            body: JSON.stringify({...newItem, personId: props.location.state.userAccount.id})
+        })
+            .then(() => setShowCreateModal(false))
+            .then(() => fetchItems())
+    }
+
     return (
         <Container>
             <Row>
-                <Col><h3>Group {thisGroup.groupName}</h3></Col>
+                <Col><h3>{thisGroup.groupName}</h3></Col>
             </Row>
             <Row>
                 <Card
@@ -68,7 +86,7 @@ export default function InsideGroup(props) {
                     <h3>Items:</h3>
                 </Col>
                 <Col>
-                    <Button variant='success' style={{ float: "right"}}>Add new item</Button>
+                    <Button variant='primary' style={{ float: "right"}} onClick={() => setShowCreateModal(true)}>Add new item</Button>
                 </Col>
             </Row>
             {thisGroup.items.map((item) =>
@@ -77,7 +95,7 @@ export default function InsideGroup(props) {
                         <Row>
                             <Col style={{ width: '50%', marginRight: '0px' }}>
                                 <Card.Title>{item.itemName}</Card.Title>
-                                <Card.Subtitle>Postet by {thisGroup.members.filter(person => person.id === item.personId).map(person => person.username)}</Card.Subtitle>
+                                <Card.Subtitle>Posted by {thisGroup.members.filter(person => person.id === item.personId).map(person => person.username)}</Card.Subtitle>
                                 <Card.Text>{item.message}</Card.Text>
                             </Col>
                             <Col style={{ textAlign: 'right', marginTop: 'auto', marginBottom: 'auto'}}>
@@ -87,6 +105,25 @@ export default function InsideGroup(props) {
                     </Card.Body>
                 </Card>
             )}
+            <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
+                <Modal.Header>
+                    <Modal.Title>Create a new item</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group style={{ width: "200px" }}>
+                            <Form.Label>Item name:</Form.Label>
+                            <Form.Control type="username" placeholder="Item name" onChange={(e) => setNewItem({...newItem, itemName: e.target.value})}/>
+                            <Form.Label style={{ marginTop: '10px' }}>Message:</Form.Label>
+                            <Form.Control type="username" placeholder="Message" onChange={(e) => setNewItem({...newItem, message: e.target.value})}/>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant='primary' onClick={() => handleCreate()}>Save</Button>
+                    <Button variant='secondary' onClick={() => setShowCreateModal(false)}>Cancel</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     )
 }
