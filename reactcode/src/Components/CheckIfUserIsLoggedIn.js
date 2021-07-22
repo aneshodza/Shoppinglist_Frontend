@@ -17,7 +17,7 @@ export default function CheckIfUserIsLoggedIn() {
             }
 
             fetch("http://localhost:8080/people", {
-            method: "post",
+            method: "put",
             mode: "cors",
             headers: {
                 "Content-Type": "application/json",
