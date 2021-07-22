@@ -63,8 +63,13 @@ export default function InsideGroup(props) {
                     </Row>
                 )}
             </Row>
-            <Row>
-                <h3>Items:</h3>
+            <Row style={{ marginBottom: "15px", marginTop: "15px" }}>
+                <Col>
+                    <h3>Items:</h3>
+                </Col>
+                <Col>
+                    <Button variant='success' style={{ float: "right"}}>Add new item</Button>
+                </Col>
             </Row>
             {thisGroup.items.map((item) =>
                 <Card style={{ border: "1px solid black", margin: "10px" }}>
