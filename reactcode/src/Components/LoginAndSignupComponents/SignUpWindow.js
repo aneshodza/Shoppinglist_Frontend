@@ -54,7 +54,7 @@ export default function SignUpWindow() {
         }
 
         fetch("http://localhost:8080/people", {
-            method: "put",
+            method: "post",
             mode: "cors",
             headers: {
                 "Content-Type": "application/json",
