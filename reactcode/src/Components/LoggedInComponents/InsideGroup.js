@@ -3,6 +3,9 @@ import { Container, Row, Col, Card, Button } from "react-bootstrap"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function InsideGroup(props) {
+
+    const [showMembers, setShowMembers] = useState(true)
+
     const [thisGroup, setThisGroup] = useState({
         groupName: '',
         members: [{
@@ -46,8 +49,13 @@ export default function InsideGroup(props) {
                 <Col><h3>Group {thisGroup.groupName}</h3></Col>
             </Row>
             <Row>
-                <h5>This group has {thisGroup.members.length} members</h5>
-                {thisGroup.members.map((member) =>
+                <Card
+                    style={{ border: "1px solid black", margin: "2px", padding: "5px", width: "250px", cursor: "pointer", userSelect: "none" }}
+                    onClick={() => setShowMembers(!showMembers)}
+                >
+                    This group has {thisGroup.members.length} members
+                </Card>
+                {(showMembers) ? <br/> : thisGroup.members.map((member) =>
                     <Row>
                         <Card style={{ border: "1px solid black", margin: "2px", padding: "5px", width: "250px" }}>
                             {member.first_name} {member.last_name} ({member.username})
