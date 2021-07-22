@@ -3,7 +3,7 @@ import { Container, Row, Col, Card, Button, Modal, Form } from "react-bootstrap"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function InsideGroup(props) {
-    const [showCreateModal, setShowCreateModal] = useState(true)
+    const [showCreateModal, setShowCreateModal] = useState(false)
     const [newItem, setNewItem] = useState({
         itemName: '',
         message: '',
