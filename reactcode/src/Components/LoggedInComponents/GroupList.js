@@ -6,6 +6,11 @@ export default function GroupList(props) {
     const [myGroups, setMyGroups] = useState([])
 
     useEffect(() => {
+        localStorage.setItem('lastUrl', props.location.state.userAccount.ownUrl)
+        if (localStorage.getItem('rememberMe') == 'false') {
+            localStorage.removeItem('rememberedPassword')
+            localStorage.removeItem('rememberedUsername')
+        }
         if (props.location.state !== undefined) {
             fetch('http://localhost:8080/people/' + props.location.state.userAccount.id + '/my-groups')
                 .then(r => r.json())
@@ -16,7 +21,9 @@ export default function GroupList(props) {
     return (
         <Container>
             <Row>
-                <h1>You are currently logged in as {props.location.state === undefined ? <Redirect to="/" /> : props.location.state.userAccount.username}</h1>
+                <h1>
+                    You are currently logged in as {props.location.state === undefined ? <Redirect to="/" /> : props.location.state.userAccount.username} {props.location.state === undefined ? <Redirect to="/" /> : <small>(#{props.location.state.userAccount.ownUrl})</small>}
+                </h1>
             </Row>
             {myGroups.map((g) =>
                 <Link to={{
