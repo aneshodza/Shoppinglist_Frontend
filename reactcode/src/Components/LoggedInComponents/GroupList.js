@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Container, Row, Modal, Card } from "react-bootstrap";
+import { Button, Container, Row, Modal, Card, Col } from "react-bootstrap";
 import { Link, Redirect } from "react-router-dom";
 
 export default function GroupList(props) {
@@ -53,6 +53,25 @@ export default function GroupList(props) {
             .then(() => setShowInvites(true))
     }
 
+    const reactToInvite = (reaction, invitation) => {
+        fetch('http://localhost:8080/invitations', {
+            method: 'post',
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+            },
+            body: JSON.stringify({
+                id: invitation.id,
+                hasBeenAccepted: reaction
+            })
+        })
+            .then(r => r.json())
+            .then(r => console.log(r))
+            .then(() => refreshInvitesAndShow())
+            .then(() => getMyGroups(myAccount.id))
+    }
+
     return (
         <Container>
             <Row>
@@ -78,11 +97,33 @@ export default function GroupList(props) {
                 </Modal.Header>
                 <Modal.Body>
                     {(!myAccount.invitations.length) ? <h2>You dont have any invitations</h2> : myAccount.invitations.map((i) =>
-                        <Card style={{ marginBottom: '10px' }}>
-                            <Card.Title style={{ paddingLeft: '10px', paddingTop: '10px' }}>Invitation to: {i.groupName}</Card.Title>
-                            <Card.Subtitle style={{ paddingLeft: '10px', paddingBottom: '10px' }}>Sent by {i.senderUsername}</Card.Subtitle>
+
+                        <Card style={{ marginBottom: '10px', backgroundColor: i.open ? '' : 'lightgrey' }}>
+                            <Container style={{ marginRight: '10px', marginLeft: '0px' }}>
+                                <Row>
+                                    <Col style={{ width: '80%' }}>
+                                        <Card.Title style={{ paddingLeft: '10px', paddingTop: '10px' }}>Invitation to: {i.groupName}</Card.Title>
+                                        <Card.Subtitle style={{ paddingLeft: '10px', paddingBottom: '10px' }}>Sent by {i.senderUsername}</Card.Subtitle>
+                                    </Col>
+                                    <Button
+                                        style={{ float: 'right', width: '20%', marginTop: '5%', marginBottom: '5%', padding: '0px', marginRight: '1%' }}
+                                        disabled={!i.open}
+                                        onClick={() => reactToInvite(true, i)}
+                                    >
+                                        Accept
+                                    </Button>
+                                    <Button
+                                        style={{ float: 'right', width: '20%', marginTop: '5%', marginBottom: '5%', padding: '0px', marginRight: '1%'}}
+                                        disabled={!i.open}
+                                        onClick={() => reactToInvite(false, i)}
+                                    >
+                                        Deny
+                                    </Button>
+                                </Row>
+                            </Container>
                             <Card.Footer>{timeSince(i.whenSent)} ago</Card.Footer>
                         </Card>
+
                     )}
                 </Modal.Body>
                 <Modal.Footer>

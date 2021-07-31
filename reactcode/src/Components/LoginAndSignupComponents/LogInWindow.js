@@ -26,7 +26,7 @@ export default function LogInWindow() {
             password: givenPassword,
         }
 
-        fetch("http://localhost:8080/people", {
+        fetch("http://192.168.1.120:8080/people", {
             method: "put",
             mode: "cors",
             headers: {
