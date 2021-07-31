@@ -53,7 +53,7 @@ export default function SignUpWindow() {
             password: givenPassword,
         }
 
-        fetch("http://localhost:8080/people", {
+        fetch("http://192.168.1.120:8080/people", {
             method: "post",
             mode: "cors",
             headers: {
@@ -125,7 +125,7 @@ export default function SignUpWindow() {
                 <Form.Check type="checkbox" label="Keep me logged in" onClick={() => setRememberMe(!rememberMe)} />
             </Form.Group>
 
-            <Button variant="primary" onClick={handleSignUp}>Sign up</Button>
+            <Button variant="primary" onClick={() => handleSignUp()}>Sign up</Button>
             <p style={{ color: 'red' }}>{ errorLabel.errorMessage }</p>
             <Button variant="primary" onClick={() => setRedirect(<Redirect to="/login" />)}>I aready have an account</Button>
             { redirect }

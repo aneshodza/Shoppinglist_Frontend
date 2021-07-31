@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react"
-import { Container, Row, Col, Card, Button, Modal, Form } from "react-bootstrap"
+import { Container, Row, Col, Card, Button, Modal, Form, InputGroup } from "react-bootstrap"
+import { Redirect } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function InsideGroup(props) {
+    const [redirect, setRedirect] = useState('')
+    const [myAccount, setMyAccount] = useState({})
+
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [newItem, setNewItem] = useState({
         itemName: '',
         message: '',
         personId: ''
+    })
+
+    const [showInviteModal, setShowInviteModal] = useState(false)
+    const [invitationUrl, setInvitationUrl] = useState('')
+    const [invitationValidator, setInvitationValidator] = useState({
+        message: '',
+        color: ''
     })
 
     const [showMembers, setShowMembers] = useState(true)
@@ -27,6 +38,18 @@ export default function InsideGroup(props) {
     })
 
     useEffect(() => {
+        console.log(props)
+        if (localStorage.getItem('loggedIn') !== 'true') {
+            setRedirect(<Redirect to="/login" />)
+        }
+        if (props.location.state === undefined) {
+            fetch('http://localhost:8080/people/' + localStorage.getItem('lastUrl'))
+                .then(r => r.json())
+                .then(r => setMyAccount(r))
+        } else {
+            setMyAccount(props.location.state.userAccount)
+        }
+        console.log(myAccount)
         fetchItems()
     }, [])
 
@@ -55,10 +78,45 @@ export default function InsideGroup(props) {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
             },
-            body: JSON.stringify({...newItem, personId: props.location.state.userAccount.id})
+            body: JSON.stringify({ ...newItem, personId: myAccount.id })
         })
             .then(() => setShowCreateModal(false))
             .then(() => fetchItems())
+    }
+
+    const handleInvite = () => {
+        if (invitationUrl.replace(/\s/g, '').length !== 5) {
+            setInvitationValidator({ color: 'red', message: <p style={{ color: 'red' }}>User ID has to be 5 characters long</p> })
+        } else {
+            setInvitationUrl('')
+            setInvitationValidator({message: '', color: ''})
+            fetch('http://localhost:8080/invitations/' + invitationUrl.replace(/\s/g, ''), {
+                method: 'put',
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                },
+                body: JSON.stringify({ senderUrl: myAccount.ownUrl, groupUrl: props.match.params.groupUrl })
+            })
+                .then(r => r.json())
+                .then(r => validateInvite(r))
+        }
+    }
+
+    const validateInvite = (r) => {
+        console.log(r)
+        if (r.returnCode === 1) {
+            setInvitationValidator({ color: 'red', message: <p style={{ color: 'red' }}>The ID does not match any user</p> })
+        } else if (r.returnCode === 5) {
+            setInvitationValidator({ color: 'red', message: <p style={{ color: 'red' }}>The user is already in the group</p> })
+        } else if (r.returnCode === 6) {
+            setInvitationValidator({ color: 'red', message: <p style={{ color: 'red' }}>You invited this user already</p> })
+        } else {
+            setInvitationValidator({color: '', message: ''})
+            setShowInviteModal(false)
+            fetchItems()
+        }
     }
 
     return (
@@ -73,7 +131,7 @@ export default function InsideGroup(props) {
                 >
                     This group has {thisGroup.members.length} members
                 </Card>
-                {(showMembers) ? <br/> : thisGroup.members.map((member) =>
+                {(showMembers) ? <br /> : thisGroup.members.map((member) =>
                     <Row>
                         <Card style={{ border: "1px solid black", margin: "2px", padding: "5px", width: "250px" }}>
                             {member.first_name} {member.last_name} ({member.username})
@@ -86,7 +144,8 @@ export default function InsideGroup(props) {
                     <h3>Items:</h3>
                 </Col>
                 <Col>
-                    <Button variant='primary' style={{ float: "right"}} onClick={() => setShowCreateModal(true)}>Add new item</Button>
+                    <Button variant='success' style={{ float: "right" }} onClick={() => setShowCreateModal(true)}>Add new item</Button>
+                    <Button variant='primary' style={{ float: "right", marginRight: '10px' }} onClick={() => setShowInviteModal(true)}>Invite new user</Button>
                 </Col>
             </Row>
             {thisGroup.items.map((item) =>
@@ -98,7 +157,7 @@ export default function InsideGroup(props) {
                                 <Card.Subtitle>Posted by {thisGroup.members.filter(person => person.id === item.personId).map(person => person.username)}</Card.Subtitle>
                                 <Card.Text>{item.message}</Card.Text>
                             </Col>
-                            <Col style={{ textAlign: 'right', marginTop: 'auto', marginBottom: 'auto'}}>
+                            <Col style={{ textAlign: 'right', marginTop: 'auto', marginBottom: 'auto' }}>
                                 <Button variant='danger' onClick={() => handleDelete(item.id)}>Delete item</Button>
                             </Col>
                         </Row>
@@ -113,9 +172,9 @@ export default function InsideGroup(props) {
                     <Form>
                         <Form.Group style={{ width: "200px" }}>
                             <Form.Label>Item name:</Form.Label>
-                            <Form.Control type="username" placeholder="Item name" onChange={(e) => setNewItem({...newItem, itemName: e.target.value})}/>
+                            <Form.Control type="username" placeholder="Item name" onChange={(e) => setNewItem({ ...newItem, itemName: e.target.value })} />
                             <Form.Label style={{ marginTop: '10px' }}>Message:</Form.Label>
-                            <Form.Control type="username" placeholder="Message" onChange={(e) => setNewItem({...newItem, message: e.target.value})}/>
+                            <Form.Control type="username" placeholder="Message" onChange={(e) => setNewItem({ ...newItem, message: e.target.value })} />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
@@ -124,6 +183,29 @@ export default function InsideGroup(props) {
                     <Button variant='secondary' onClick={() => setShowCreateModal(false)}>Cancel</Button>
                 </Modal.Footer>
             </Modal>
+
+            <Modal show={showInviteModal} onHide={() => setShowInviteModal(false)}>
+                <Modal.Header>
+                    <Modal.Title>Invite a new user</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group style={{ width: "200px" }}>
+                            <Form.Label>User URL:</Form.Label>
+                            <InputGroup>
+                                <InputGroup.Text id="hashtag-addon">#</InputGroup.Text>
+                                <Form.Control style={{ borderColor: invitationValidator.color }} type="username" placeholder="User URL" aria-describedby="hashtag-addon" onChange={(e) => setInvitationUrl(e.target.value)} />
+                            </InputGroup>
+                        </Form.Group>
+                    </Form>
+                    { invitationValidator.message }
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant='primary' onClick={() => handleInvite()}>Invite</Button>
+                    <Button variant='secondary' onClick={() => setShowInviteModal(false)}>Cancel</Button>
+                </Modal.Footer>
+            </Modal>
+            {redirect}
         </Container>
     )
 }
