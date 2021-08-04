@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Container, Row, Modal, Card, Col } from "react-bootstrap";
+import { Button, Container, Row, Modal, Card, Col, Form} from "react-bootstrap";
 import { Link, Redirect } from "react-router-dom";
 
 export default function GroupList(props) {
@@ -15,7 +15,10 @@ export default function GroupList(props) {
         invitations: []
     })
     const [showInvites, setShowInvites] = useState(false)
+    const [showCreateGroup, setShowCreateGroup] = useState(false)
+    const [newGroupName, setNewGroupName] = useState('')
     const [redirect, setRedirect] = useState('')
+
 
     useEffect(() => {
         console.log(myAccount)
@@ -66,9 +69,23 @@ export default function GroupList(props) {
                 hasBeenAccepted: reaction
             })
         })
-            .then(r => r.json())
-            .then(r => console.log(r))
             .then(() => refreshInvitesAndShow())
+            .then(() => getMyGroups(myAccount.id))
+    }
+
+    const createNewGroup = () => {
+        fetch('http://localhost:8080/groups/' + myAccount.ownUrl, {
+            method: 'put',
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+            },
+            body: JSON.stringify({
+                groupName: newGroupName
+            })
+        })
+            .then(() => setShowCreateGroup(false))
             .then(() => getMyGroups(myAccount.id))
     }
 
@@ -78,6 +95,7 @@ export default function GroupList(props) {
                 <h1>
                     You are currently logged in as {props.location.state === undefined ? <Redirect to="/" /> : props.location.state.userAccount.username} {props.location.state === undefined ? <Redirect to="/" /> : <small>(#{props.location.state.userAccount.ownUrl})</small>}
                     <Button variant='primary' style={{ float: 'right', marginTop: '10px' }} onClick={() => refreshInvitesAndShow()}>My invites</Button>
+                    <Button variant='primary' style={{ float: 'right', marginTop: '10px', marginRight: '10px' }} onClick={() => setShowCreateGroup(true)}>Create new group</Button>
                 </h1>
             </Row>
             {(!myGroups.length) ? <h2>You are in no groups yet</h2> : myGroups.map((g) =>
@@ -113,7 +131,7 @@ export default function GroupList(props) {
                                         Accept
                                     </Button>
                                     <Button
-                                        style={{ float: 'right', width: '20%', marginTop: '5%', marginBottom: '5%', padding: '0px', marginRight: '1%'}}
+                                        style={{ float: 'right', width: '20%', marginTop: '5%', marginBottom: '5%', padding: '0px', marginRight: '1%' }}
                                         disabled={!i.open}
                                         onClick={() => reactToInvite(false, i)}
                                     >
@@ -128,6 +146,24 @@ export default function GroupList(props) {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant='secondary' onClick={() => setShowInvites(false)}>Cancel</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showCreateGroup} onHide={() => setShowCreateGroup(false)}>
+                <Modal.Header>
+                    <Modal.Title>Create a new group</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group style={{ width: "200px" }}>
+                            <Form.Label>Group name:</Form.Label>
+                            <Form.Control type="username" placeholder="Group name" onChange={(e) => setNewGroupName(e.target.value)} />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant='primary' onClick={() => createNewGroup()}>Create</Button>
+                    <Button variant='secondary' onClick={() => setShowCreateGroup(false)}>Cancel</Button>
                 </Modal.Footer>
             </Modal>
             {redirect}
